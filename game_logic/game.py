@@ -142,12 +142,13 @@ class Game:
         """Checking who gets the point for most diamonds"""
         points_team_1, points_team_2 = self.__count_diamonds(cards_team_1, points_team_1, cards_team_2, points_team_2)
 
-        """checking who gets the points for the 7 of diamonds"""
+        """Checking who gets the point for the 7 of diamonds"""
         if (7, "diamonds") in cards_team_1:
             points_team_1 += 1
         else:
             points_team_2 += 1
-        """counts point from primiera"""
+
+        """Counts point from primiera"""
         points_team_1, points_team_2 = self.__count_primiera(cards_team_1, points_team_1, cards_team_2, points_team_2)
 
         return points_team_1, points_team_2
