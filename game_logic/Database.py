@@ -51,6 +51,7 @@ class game_database:
 
         sql_create_decks_table = """CREATE TABLE IF NOT EXISTS decks(
                                     name TEXT PRIMARY KEY,
+                                    scope INTEGER NOT NULL,
                                     FOREIGN KEY (name) REFERENCES places(name));"""
 
         self.conn = self.create_connection(database)
@@ -79,7 +80,7 @@ class game_database:
                 self.__create_place(place)
 
             # creation of the two decks
-            decks = ['deck_1', 'deck_2']
+            decks = [('deck_1' , 0), ('deck_2', 0)]
             for deck in decks:
                 self.__create_deck(deck)
 
@@ -113,9 +114,9 @@ class game_database:
         :param deck: deck values
         :return:
         """
-        sql = '''INSERT INTO decks(name) VALUES(?)'''
+        sql = '''INSERT INTO decks(name, scope) VALUES(?, ?)'''
         cur = self.conn.cursor()
-        cur.execute(sql, [deck])
+        cur.execute(sql, deck)
         self.conn.commit()
         return cur.lastrowid
 
@@ -196,15 +197,42 @@ class game_database:
         :return: list of decks
         """
         cur = self.conn.cursor()
+        cur.execute("SELECT name FROM decks")
+
+        rows = cur.fetchall()
+
+        return rows
+
+    def select_all_decks_and_scope(self):
+        """
+        Select all the decks and the corrisponding ammount of scope
+        :return: list of decks
+        """
+        cur = self.conn.cursor()
         cur.execute("SELECT * FROM decks")
 
         rows = cur.fetchall()
 
         return rows
 
+    def select_player_deck(self, player):
+        """
+        Select the name of the name of the deck of a player
+        :param player: name of the player
+        :return: the name of the deck
+        """
+
+        cur = self.conn.cursor()
+        sql = "SELECT deck FROM players WHERE name = ?"
+        cur.execute(sql, player)
+
+        deck = cur.fetchone()[0]
+
+        return deck
+
     def select_all_players(self):
         """
-        Select all the places in the database
+        Select all the players in the database
         :return: list of all the places in the game
         """
         cur = self.conn.cursor()
@@ -283,7 +311,6 @@ class game_database:
     def ground(self):
         """
         get position ground
-        :param card: selected card
         :return: position of the card
         """
         cur = self.conn.cursor()
@@ -305,15 +332,35 @@ class game_database:
                  SET position = ?
                  WHERE number = ? AND suit = ?;'''
         cur = self.conn.cursor()
-        print(card)
         cur.execute(sql, (new_position, card[0], card[1]))
         self.conn.commit()
+
+    def add_scopa(self, deck):
+        """
+        Add one to the counter of scope for a team
+        :param deck: Indicates the deck
+        :return: nothing
+        """
+        retriever_sql = '''SELECT scope FROM decks WHERE name = ?'''
+        cur = self.conn.cursor()
+        cur.execute(retriever_sql, [deck])
+        scope = cur.fetchone()[0]
+
+        scope += 1
+
+        update_sql = '''UPDATE decks
+                        set scope = ?
+                        WHERE name = ?;'''
+        cur = self.conn.cursor()
+        cur.execute(update_sql, (scope, deck))
 
 
 """
 def main():
     this_game = game_database()
     this_game.update_card_position((2, 'spades'), 'ground')
+    this_game.add_scopa('deck_1')
+
 
 
 if __name__ == '__main__':
