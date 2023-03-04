@@ -11,6 +11,7 @@ class Game:
 
     def __init__(self):
 
+        self.__last_player = None
         self.__database = game_database()
         self.ground = (self.__database.ground())[0]
 
@@ -70,13 +71,19 @@ class Game:
         """Fetches a list of cards on the ground"""
         cards = self.__database.select_position_cards(self.ground)
 
-        """Check if there is an equal card on the ground and if there is puts the two cards in the player deck"""
+        # SINGLE CARD CHECK
+        """Check if there is an equal card on the ground and if there is puts the two cards in the player deck
+        and sets the last player that picked a card"""
         for ground_card in cards:
             if card[0] == ground_card[0]:
                 self.__database.update_card_position(card, deck)
                 self.__database.update_card_position(ground_card, deck)
+                self.__last_pick(player)
                 return
 
+        # COMBINATIONS CHECK
+        """Check if there is a combination of cards that has the sum equal to the number of the played card than adds 
+        all of them to the player's deck and sets the player as the last one who picked a card"""
         for n in range(2, len(cards) + 1):
             print("combinations of " + str(n) + "cards\n")
             for comb in combinations(cards, n):
@@ -88,11 +95,16 @@ class Game:
                     self.__database.update_card_position(card, deck)
                     for ground_card in comb:
                         self.__database.update_card_position(ground_card, deck)
+
+                    """Sets the player as last player"""
+                    self.__last_pick(player)
                     return
 
-        """Check if any card sums to that card"""
         self.__database.update_card_position(card, self.ground[0])
         return
+
+    def __last_pick(self, player):
+        self.__last_player = player
 
     def points_counter(self):
         """
@@ -101,6 +113,13 @@ class Game:
         :return:
         """
 
+        # MOVE THE LAST CARDS TO THE DECK OF THE LAST PLAYER
+        remaining_cards = self.__database.select_position_cards(self.ground)
+
+        for card in remaining_cards:
+            self.__database.update_card_position(card, self.__database.select_player_deck(self.__last_player))
+
+        # START COUNTING THE POINTS
         players = self.players()
 
         for player in players:
@@ -185,23 +204,34 @@ class Game:
 
         return points_team_1, points_team_2
 
-
+"""
 def main():
     this_game = Game()
     players = this_game.players()
-    cards = this_game.show_place_cards(players[0])
+    cards = this_game.show_place_cards(players[3])
     while len(cards) > 0:
-        print("\nyour cards")
-        print(cards)
-        print("\nground cards")
-        print(this_game.show_place_cards(this_game.ground))
-        card = int(input("play a card"))
-        card -= 1
-        this_game.play_card(cards[card], players[0])
-        cards = this_game.show_place_cards(players[0])
+        for player in players:
+            cards = this_game.show_place_cards(player)
+            this_game.play_card(cards[0], player)
+
+        cards = this_game.show_place_cards(players[3])
+
+    points_team_1, points_team_2 = this_game.points_counter()
+
+    print("team 1 points")
+    print(points_team_1)
+    print("cards tem one")
+    print(this_game.show_place_cards(["deck_1"]))
+
+    print("team 2 points")
+    print(points_team_2)
+    print("cards tem one")
+    print(this_game.show_place_cards(["deck_2"]))
+
 
     # this_game.points_counter()
 
 
 if __name__ == '__main__':
-    main()
+    main() """
+
