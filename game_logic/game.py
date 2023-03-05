@@ -6,7 +6,7 @@ class Game:
     """
     Game function to manage all the logic of the game.
     Public methods: show_place_cards, players, play_card
-    public attributes: gound (place where all the played cards are)
+    public attributes: ground (place where all the played cards are)
     """
 
     def __init__(self):
@@ -20,7 +20,7 @@ class Game:
         function to show all the cards that are in a single place.
         The possible places are: player_1, player_2, player_3, player_4, ground, deck_1, deck_2
         :param place: a string indicating the place
-        :return: a list of cards where everi card will be (int, suit) each suit is a string with one of four possible
+        :return: a list of cards where ever card will be (int, suit) each suit is a string with one of four possible
         values: "hearts", "clubs", "spades", "diamonds"
         """
         return self.__database.select_position_cards(place)
@@ -108,10 +108,16 @@ class Game:
 
     def points_counter(self):
         """
-        counts the points once the game is finished. The methods strats by cheking if any player still has cards to play
-        in case it raises and EXEPTION
+        counts the points once the game is finished. The methods strats by checking if any player still has cards to
+        play in case it raises and EXCEPTION
         :return:
         """
+
+        players = self.players()
+
+        for player in players:
+            if len(self.show_place_cards(player)) > 0:
+                raise Exception("the game is not finished " + player[0] + " still has cards to play")
 
         # MOVE THE LAST CARDS TO THE DECK OF THE LAST PLAYER
         remaining_cards = self.__database.select_position_cards(self.ground)
@@ -120,12 +126,6 @@ class Game:
             self.__database.update_card_position(card, self.__database.select_player_deck(self.__last_player))
 
         # START COUNTING THE POINTS
-        players = self.players()
-
-        for player in players:
-            if len(self.show_place_cards(player)) > 0:
-                raise Exception("the game is not finished " + player[0] + " still has cards to play")
-
         decks = self.__database.select_all_decks_and_scope()
         points_team_1 = (decks[0])[1]
         points_team_2 = (decks[1])[1]
@@ -205,6 +205,7 @@ class Game:
 
         return points_team_1, points_team_2
 
+
 """
 def main():
     this_game = Game()
@@ -234,5 +235,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main() """
-
+    main()"""
