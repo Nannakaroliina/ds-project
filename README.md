@@ -46,3 +46,17 @@ Return a list of the cards contained in one place. By place are ment both the ha
 #### play_card(card, player)
 Require a card and a player. If the card is in the hand of the player the method will play it. If the card is not in
 the player hand it will raise an exception: "card not in player hand"
+
+
+## Use the client and the manager
+
+You need to start the manager first with
+```
+python manager.py
+```
+After that connect 4 clients with:
+```
+python client.py
+```
+You need to give a second or two for client to connect (this is still a working issue)
+Then you can play card with client and see what happens.

@@ -1,4 +1,4 @@
-from Database import game_database
+from game_logic.Database import game_database
 from itertools import combinations
 
 
