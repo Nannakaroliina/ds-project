@@ -3,7 +3,7 @@ import sqlite3
 from sqlite3 import Error
 
 
-class game_database:
+class GameDatabase:
 
     def create_connection(self, db_file):
         """create a database file in the working directory"""
@@ -353,16 +353,3 @@ class game_database:
                         WHERE name = ?;'''
         cur = self.conn.cursor()
         cur.execute(update_sql, (scope, deck))
-
-
-"""
-def main():
-    this_game = game_database()
-    this_game.update_card_position((2, 'spades'), 'ground')
-    this_game.add_scopa('deck_1')
-
-
-
-if __name__ == '__main__':
-    main()
-"""

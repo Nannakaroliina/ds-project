@@ -46,3 +46,22 @@ Return a list of the cards contained in one place. By place are ment both the ha
 #### play_card(card, player)
 Require a card and a player. If the card is in the hand of the player the method will play it. If the card is not in
 the player hand it will raise an exception: "card not in player hand"
+
+
+## Play the game
+
+Start the system first, requires Docker.
+
+```shell
+chmod +x run.sh
+./run.sh
+```
+
+After that connect 4 clients by running the following 4 times in separate terminals:
+```shell
+chmod +x play.sh
+./play.sh
+```
+
+You need to give a second or two for client to connect (this is still a working issue)
+Then you can play card with client and see what happens.

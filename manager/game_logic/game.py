@@ -1,4 +1,4 @@
-from Database import game_database
+from game_logic.Database import GameDatabase
 from itertools import combinations
 
 
@@ -12,7 +12,7 @@ class Game:
     def __init__(self):
 
         self.__last_player = None
-        self.__database = game_database()
+        self.__database = GameDatabase()
         self.ground = (self.__database.ground())[0]
 
     def show_place_cards(self, place):

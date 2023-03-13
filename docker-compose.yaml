@@ -1,0 +1,158 @@
+version: "3.9"
+services:
+
+    zookeeper:
+        image: confluentinc/cp-zookeeper:latest
+        container_name: zookeeper
+        networks:
+            - microservices
+        ports:
+            - "2181:2181"
+        restart: on-failure
+        environment:
+            ZOOKEEPER_CLIENT_PORT: 2181
+            ZOOKEEPER_TICK_TIME: 2000
+        healthcheck:
+            test: [ "CMD", "curl", "-f", "localhost:2181" ]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+
+    kafka:
+        image: confluentinc/cp-kafka:latest
+        container_name: kafka
+        networks:
+            - microservices
+        depends_on:
+            - zookeeper
+        ports:
+            - "9092:9092"
+            - "29092:29092"
+            - "9101:9101"
+        restart: on-failure
+        environment:
+            KAFKA_BROKER_ID: 1
+            KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+            KAFKA_ADVERTISED_HOST_NAME: kafka:9092
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+            KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        healthcheck:
+            test: [ "CMD", "curl", "-f", "localhost:29092" ]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+
+    kafdrop:
+        image: obsidiandynamics/kafdrop:latest
+        container_name: kafdrop
+        networks:
+            - microservices
+        depends_on:
+            - kafka
+            - zookeeper
+        ports:
+            - "19000:9000"
+        restart: on-failure
+        environment:
+            KAFKA_BROKERCONNECT: kafka:29092
+        healthcheck:
+            test: [ "CMD", "curl", "-f", "localhost:19000" ]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+
+    manager:
+        build:
+            context: ./manager
+            dockerfile: Dockerfile
+#        deploy:
+#            mode: replicated
+#            replicas: 3
+#            endpoint_mode: vip
+#            restart_policy:
+#                condition: on-failure
+#                delay: 5s
+#                max_attempts: 3
+#                window: 120s
+        networks:
+            - microservices
+        ports:
+            - "8000-8005:8000"
+        restart: on-failure
+        depends_on:
+            - kafka
+            - zookeeper
+        healthcheck:
+            test: [ "CMD", "curl", "-f", "localhost:8000" ]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+
+#    client1:
+#        build:
+#            context: ./client
+#            dockerfile: Dockerfile
+#        container_name: client1
+#        restart: on-failure
+#        ports:
+#            - "8001:8001"
+#        networks:
+#            - microservices
+#        depends_on:
+#            - manager
+#            - kafka
+#            - zookeeper
+#
+#    client2:
+#        build:
+#            context: ./client
+#            dockerfile: Dockerfile
+#        container_name: client2
+#        restart: on-failure
+#        ports:
+#            - "8002:8002"
+#        networks:
+#            - microservices
+#        depends_on:
+#            - manager
+#            - kafka
+#            - zookeeper
+#            - client1
+#
+#    client3:
+#        build:
+#            context: ./client
+#            dockerfile: Dockerfile
+#        container_name: client3
+#        restart: on-failure
+#        ports:
+#            - "8003:8003"
+#        networks:
+#            - microservices
+#        depends_on:
+#            - manager
+#            - kafka
+#            - zookeeper
+#            - client2
+#
+#    client4:
+#        build:
+#            context: ./client
+#            dockerfile: Dockerfile
+#        container_name: client4
+#        restart: on-failure
+#        ports:
+#            - "8004:8004"
+#        networks:
+#            - microservices
+#        depends_on:
+#            - manager
+#            - kafka
+#            - zookeeper
+#            - client3
+
+networks:
+    microservices:
+        driver: bridge
