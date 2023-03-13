@@ -47,6 +47,9 @@ Return a list of the cards contained in one place. By place are ment both the ha
 Require a card and a player. If the card is in the hand of the player the method will play it. If the card is not in
 the player hand it will raise an exception: "card not in player hand"
 
+#### points_counter()
+Return the points of Team one and Team Two as two int values. Before counting the points it check that each player played all the cards if is not the case throws an exception
+
 
 ## Play the game
 
