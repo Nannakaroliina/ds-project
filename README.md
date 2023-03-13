@@ -48,15 +48,20 @@ Require a card and a player. If the card is in the hand of the player the method
 the player hand it will raise an exception: "card not in player hand"
 
 
-## Use the client and the manager
+## Play the game
 
-You need to start the manager first with
+Start the system first, requires Docker.
+
+```shell
+chmod +x run.sh
+./run.sh
 ```
-python manager.py
+
+After that connect 4 clients by running the following 4 times in separate terminals:
+```shell
+chmod +x play.sh
+./play.sh
 ```
-After that connect 4 clients with:
-```
-python client.py
-```
+
 You need to give a second or two for client to connect (this is still a working issue)
 Then you can play card with client and see what happens.
